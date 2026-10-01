@@ -1,0 +1,16 @@
+services:
+  agentmesh-runtime:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: agentmesh-runtime
+    environment:
+      - AGENTMESH_STATE_DIR=/var/lib/agentmesh/state
+    volumes:
+      - agentmesh-state:/var/lib/agentmesh/state
+    restart: unless-stopped
+    command: python examples/chaos_recovery_demo.py
+
+volumes:
+  agentmesh-state:
+    name: agentmesh_runtime_state
