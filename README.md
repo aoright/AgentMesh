@@ -192,9 +192,9 @@ except PermissionDeniedError as e:
 
 ## 7. 发展路线图 (Roadmap)
 
-* **2026 Q4 (当前)**：开源核心运行时 v0.1.0 发布；支持确定性 DAG 调度、事件溯源、MCP 协议集成与细粒度沙箱。
+* **2026 Q4 (当前)**：开源核心运行时发布；支持确定性 DAG 调度、事件溯源、MCP 2.0 / A2A 双协议网关与细粒度三维沙箱。
 * **2027 Q1**：支持跨节点分布式集群部署，基于 Raft 共识实现状态多副本同步；发布 Rust 高性能微内核加速绑定。
-* **2027 Q2**：深度对接北京市“开源首方案”落地示范工程，在金融风控与信创智能运维领域实现百万级日活任务调度。
+* **2027 Q2**：深度对接全国一体化算力网与重点区域“开源首方案”落地示范工程，在金融风控、电信智算云与信创智能运维领域实现百万级日活任务调度。
 
 ---
 
@@ -204,3 +204,14 @@ AgentMesh 坚持以开放中立、工程实用的原则推动开源技术生态�
 * 遵守 [Apache-2.0 许可证](LICENSE)，鼓励企业与开发者自由采用与衍生二次开发。
 * 欢迎提交 Issue 与 Pull Request，详细参与规范请参阅 [CONTRIBUTING.md](CONTRIBUTING.md)。
 * 行为守则遵循 [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)。
+
+---
+
+## 9. 2026 创新大赛专属申报材料索引
+
+针对 2026 开源创新大赛，项目已生成完备的工业级方案白皮书与 1080P 动态流程实机演练视频：
+* **通用中立技术白皮书 (PDF)**：[docs/AgentMesh_Project_Proposal_2026.pdf](docs/AgentMesh_Project_Proposal_2026.pdf)
+* **全动态实机演示视频 (1080P MP4)**：[docs/AgentMesh_Demo_Video_2026.mp4](docs/AgentMesh_Demo_Video_2026.mp4)
+* **上海大赛专属申报书 (智算云赛道)**：[docs/shanghai/AgentMesh_Project_Proposal_Shanghai_2026.pdf](docs/shanghai/AgentMesh_Project_Proposal_Shanghai_2026.pdf)
+* **北京大赛专属申报书 (赛道一：基础软件与解决方案)**：[docs/beijing/AgentMesh_Project_Proposal_Beijing_2026.pdf](docs/beijing/AgentMesh_Project_Proposal_Beijing_2026.pdf)
+* **双赛道递交指引手册**：[docs/CONTEST_SUBMISSION_GUIDE.md](docs/CONTEST_SUBMISSION_GUIDE.md)
