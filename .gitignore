@@ -67,3 +67,6 @@ coverage.xml
 *.swo
 *~
 .DS_Store
+
+# Agent Framework Internal Runtime
+.agents/
