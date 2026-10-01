@@ -1,0 +1,76 @@
+# AgentMesh: Full Architectural & Technical Specification
+
+## 1. System Architecture
+
+AgentMesh is structured into four cohesive layers designed for enterprise high-reliability deployment:
+
+### 1.1 Durable Execution Layer (`agentmesh.engine`)
+- **Deterministic Graph Orchestrator**: Separates pure computation and DAG transitions from non-deterministic external activities (LLM calls, database queries, network requests).
+- **Event Sourcing Engine**: Records every state transition as an immutable Event with integer nanosecond timestamps, monotonic sequence numbers, and RFC 8785 canonical JSON serialization.
+- **Cryptographic Hash Chaining**: Every event links to its predecessor via SHA-256 (`hash = SHA256(prev_hash + canonical_json(event))`). Tampering triggers `CryptographicIntegrityError`.
+- **ActivityMemoizer**: Computes deterministic idempotency keys `SHA256(node_id + activity_name + canonical_json(args))`. Cached activity responses are replayed upon crash recovery without re-invoking external APIs.
+- **Physical State Separation**: Checkpoints and event journals reside in isolated state storage (`AGENTMESH_STATE_DIR`), preventing mutable state leakage into source trees.
+
+### 1.2 Dual-Protocol Agent Mesh (`agentmesh.mesh`)
+- **Model Context Protocol (MCP 2.0)**: Standard JSON-RPC 2.0 wire protocol envelope supporting `tools/list` and `tools/call`.
+- **Agent-to-Agent (A2A) Protocol**: Standard message envelopes containing `A2AMessage`, `AgentCard` capability declarations, and speech-act performatives (`request`, `inform`, `propose`, `refuse`, `failure`).
+- **Dynamic Service Discovery**: Dynamic agent registration, heartbeat monitoring, and capability lookup.
+- **Traffic Scheduling & Resilience**: Smooth weighted round-robin endpoint selection combined with a three-state circuit breaker (`CLOSED`, `OPEN`, `HALF_OPEN`) with sub-5ms tripping latency and loop-free fallback routing.
+
+### 1.3 Capability Security Sandbox (`agentmesh.security`)
+- **Filesystem Security**: Canonical path resolution, strict prefix containment under allowed directories, and denial of execute permissions (`x` mode).
+- **Command Security**: Command whitelisting enforcing argument-vector execution without intermediate shell spawns. Explicitly blocks shell metacharacters (`;`, `&&`, `||`, `|`, `$()`, `` ` ``).
+- **Network Isolation**: Strict domain whitelist enforcement and SSRF defense blocking loopback (`127.0.0.1`, `localhost`) and cloud metadata services (`169.254.169.254`).
+
+### 1.4 Telemetry & Token Accounting (`agentmesh.telemetry`)
+- **Distributed Tracing**: Standard W3C TraceContext headers (`traceparent`, `tracestate`) propagated across all MCP and A2A boundaries.
+- **Token Accounting**: Real-time auditing of prompt, completion, and total tokens across agent execution trees with budget cap enforcement.
+
+---
+
+## 2. API Reference & Code Examples
+
+### 2.1 Building a Deterministic Workflow
+
+```python
+from agentmesh.engine import WorkflowGraph, ActivityMemoizer
+
+graph = WorkflowGraph(name="data-pipeline")
+
+@graph.node(id="extract")
+def extract_data(ctx):
+    return {"raw_records": [1, 2, 3]}
+
+@graph.activity(id="llm_enrichment")
+def call_llm(records):
+    # This non-deterministic call is automatically memoized
+    return {"analyzed": True, "count": len(records)}
+
+@graph.node(id="aggregate", dependencies=["extract", "llm_enrichment"])
+def aggregate_results(ctx):
+    return {"status": "completed"}
+```
+
+### 2.2 Registering an MCP Tool
+
+```python
+from agentmesh.mesh import MCPGateway, ToolDefinition
+
+gateway = MCPGateway()
+
+@gateway.register_tool(
+    name="query_knowledge",
+    description="Retrieve factual context from local store"
+)
+def query_knowledge(query: str) -> str:
+    return "Retrieved context"
+```
+
+---
+
+## 3. Verification & Compliance
+
+AgentMesh includes a comprehensive test suite:
+- `pytest tests/`: Tier 1-5 opaque-box and white-box test verification.
+- `python examples/chaos_recovery_demo.py`: Verifies zero-duplicate execution upon injected crash.
+- `python examples/financial_audit_workflow.py`: End-to-end integration demo.
